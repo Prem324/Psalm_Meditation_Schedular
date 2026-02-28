@@ -136,7 +136,7 @@ const Home = () => {
                                             {getSundayDate(meditation.year, meditation.month, meditation.sundayNumber)}
                                         </span>
                                     </div>
-                                    <div className="bg-amber-50 px-3 py-1 rounded-full text-amber-900 font-bold font-[Crimson_Text] border border-amber-100">
+                                    <div className="bg-amber-50 px-3 py-1 rounded-full text-amber-900 font-bold font-[Crimson_Text] text-2xl border border-amber-100">
                                         Psalm {meditation.psalmChapter}
                                     </div>
                                 </div>

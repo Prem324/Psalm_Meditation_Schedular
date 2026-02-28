@@ -269,7 +269,7 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-4">
-                                    <div className="text-stone-900 font-[Crimson_Text] text-3xl font-medium tracking-tight">
+                                    <div className="text-stone-900 font-[Crimson_Text] text-4xl font-medium tracking-tight">
                                         Psalm {meditation.psalmChapter}
                                     </div>
                                     <div className="flex items-center gap-3 text-stone-600 font-serif italic pt-3 border-t border-stone-100/50">
