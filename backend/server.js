@@ -11,11 +11,12 @@ dotenv.config();
 
 const app = express();
 
-// Basic health check for Render
-app.get('/health', (req, res) => res.status(200).send('OK'));
-
 app.use(cors());
 app.use(express.json());
+
+// Basic health check for Render
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/api/health', (req, res) => res.status(200).send('OK'));
 
 // Routes
 app.use('/api/admin', adminRoutes);

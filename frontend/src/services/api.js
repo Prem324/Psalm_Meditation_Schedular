@@ -4,6 +4,16 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
+// Wake up the server
+export const wakeServer = async () => {
+    try {
+        await api.get('/health');
+        console.log('Backend warmed up');
+    } catch (error) {
+        console.error('Failed to wake up backend:', error);
+    }
+};
+
 // Add token to requests if available
 api.interceptors.request.use((config) => {
     const admin = localStorage.getItem('admin');
