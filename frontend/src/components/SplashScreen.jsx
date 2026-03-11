@@ -4,11 +4,11 @@ const SplashScreen = ({ onFinish }) => {
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        // Show splash screen for 3 seconds (including fade-out transition)
+        // Show splash screen for 10 seconds (including fade-out transition)
         const timer = setTimeout(() => {
             setIsVisible(false);
             setTimeout(() => onFinish(), 500); // Wait for the transition out to complete
-        }, 2500);
+        }, 9500);
 
         return () => clearTimeout(timer);
     }, [onFinish]);
