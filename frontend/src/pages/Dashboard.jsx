@@ -34,6 +34,7 @@ const Dashboard = () => {
             const data = await meditationService.getMeditations(month, year);
             setMeditations(data);
         } catch (error) {
+            console.error('Failed to load schedule', error);
             toast.error('Failed to load schedule');
         } finally {
             setLoading(false);
@@ -80,6 +81,30 @@ const Dashboard = () => {
             fetchMeditations();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update meditation');
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    // Manual assign handler: can be triggered from the form's manual input.
+    const handleManualAssign = async (dataSpec) => {
+        setFormLoading(true);
+        try {
+            if (editingMeditation) {
+                // Update existing entry but use the manual name passed in
+                await meditationService.updateMeditation(editingMeditation._id, dataSpec);
+                toast.success('Meditation updated with manual assignee');
+                setIsFormOpen(false);
+                setEditingMeditation(null);
+            } else {
+                // Create new entry with the manual assignee
+                await meditationService.createMeditation(dataSpec);
+                toast.success('Meditation added with manual assignee');
+                setIsFormOpen(false);
+            }
+            fetchMeditations();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to assign manually');
         } finally {
             setFormLoading(false);
         }
@@ -294,6 +319,7 @@ const Dashboard = () => {
                 isOpen={isFormOpen}
                 onClose={() => { setIsFormOpen(false); setEditingMeditation(null); }}
                 onSubmit={editingMeditation ? handleUpdate : handleAdd}
+                onManualAssign={handleManualAssign}
                 initialData={editingMeditation}
                 defaultValues={{
                     month,

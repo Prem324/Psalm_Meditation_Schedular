@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Calendar, Hash } from 'lucide-react';
 import { getSundayDate, formatSundayNumber } from '../utils/dateHelpers';
 
-const MeditationForm = ({ isOpen, onClose, onSubmit, initialData = null, defaultValues = null, loading = false }) => {
+const MeditationForm = ({ isOpen, onClose, onSubmit, onManualAssign = null, initialData = null, defaultValues = null, loading = false }) => {
     const [formData, setFormData] = useState({
         month: '',
         year: '',
@@ -10,26 +10,33 @@ const MeditationForm = ({ isOpen, onClose, onSubmit, initialData = null, default
         psalmChapter: '',
         personName: '',
     });
+    const [manualPerson, setManualPerson] = useState('');
 
     useEffect(() => {
+        if (!isOpen) return;
         if (initialData) {
-            setFormData({
-                month: initialData.month,
-                year: initialData.year,
-                sundayNumber: initialData.sundayNumber,
-                psalmChapter: initialData.psalmChapter,
-                personName: initialData.personName,
-            });
+            // defer to next tick to avoid synchronous setState in effect
+            setTimeout(() => {
+                setFormData({
+                    month: initialData.month,
+                    year: initialData.year,
+                    sundayNumber: initialData.sundayNumber,
+                    psalmChapter: initialData.psalmChapter,
+                    personName: initialData.personName,
+                });
+            }, 0);
         } else if (defaultValues) {
-            setFormData({
-                ...formData,
-                month: defaultValues.month,
-                year: defaultValues.year,
-                sundayNumber: defaultValues.sundayNumber,
-                psalmChapter: '',
-                personName: '',
-            });
+            setTimeout(() => {
+                setFormData(() => ({
+                    month: defaultValues.month,
+                    year: defaultValues.year,
+                    sundayNumber: defaultValues.sundayNumber,
+                    psalmChapter: '',
+                    personName: '',
+                }));
+            }, 0);
         }
+        setTimeout(() => setManualPerson(''), 0);
     }, [initialData, defaultValues, isOpen]);
 
     if (!isOpen) return null;
@@ -73,7 +80,7 @@ const MeditationForm = ({ isOpen, onClose, onSubmit, initialData = null, default
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1 flex items-center gap-2">
+                            <label className="text-sm font-medium text-stone-700 mb-1 flex items-center gap-2">
                                 <Hash className="w-4 h-4 text-stone-400" /> Psalm Chapter (1-150)
                             </label>
                             <input
@@ -90,17 +97,50 @@ const MeditationForm = ({ isOpen, onClose, onSubmit, initialData = null, default
 
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">Assigned Person</label>
-                            <select
-                                required
-                                className="input-field"
-                                value={formData.personName}
-                                onChange={(e) => setFormData({ ...formData, personName: e.target.value })}
-                            >
-                                <option value="" disabled>Select a member</option>
-                                {["Samuel Victor", "Stanley", "Thomas", "Aruna Sowjanya", "Naveen"].map(name => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
-                            </select>
+                            <div className="flex gap-3 items-center">
+                                <select
+                                    required
+                                    className="input-field flex-1"
+                                    value={formData.personName}
+                                    onChange={(e) => setFormData({ ...formData, personName: e.target.value })}
+                                >
+                                    <option value="" disabled>Select a member</option>
+                                    {["Samuel Victor", "Stanley", "Thomas", "Aruna Sowjanya", "Naveen"].map(name => (
+                                        <option key={name} value={name}>{name}</option>
+                                    ))}
+                                </select>
+
+                                {/* Manual assign input - does not mutate the dropdown selection */}
+                                <div className="flex gap-2 items-center">
+                                    <input
+                                        type="text"
+                                        placeholder="Manual name"
+                                        className="input-field w-44"
+                                        value={manualPerson}
+                                        onChange={(e) => setManualPerson(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            // prevent Enter from submitting the main form when focusing this input
+                                            if (e.key === 'Enter') e.preventDefault();
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!onManualAssign) return;
+                                            const name = manualPerson.trim();
+                                            if (!name) return;
+                                            // send full form data but use the manual name; do NOT update the select value
+                                            onManualAssign({ ...formData, personName: name });
+                                            setManualPerson('');
+                                        }}
+                                        disabled={!manualPerson.trim() || loading}
+                                        className="btn-primary py-2 px-3 shadow-sm"
+                                    >
+                                        Assign
+                                    </button>
+                                </div>
+                            </div>
+                            <p className="text-xs text-stone-400 mt-2">Or type a name above and click Assign — this will submit the form data with the manual name without changing the dropdown.</p>
                         </div>
                     </div>
 
